@@ -17,35 +17,13 @@ router.get('/', (req, res) => {
 })
 
 /* 
-    POST
-    /	
-    Creates a post using the information sent inside the request body.
-    Validate new post Object is properlt sent against schema . 
-    TODO : validate empy values sent ?
-*/
-router.post('/', ( req, res ) =>{
-    const newUser = req.body
-    const isValid = 'name' in newUser && 'bio' in newUser // check for both properties available
-    const unCompleteMessage = { message: "Please provide name and bio for the user" } 
-    const errMessage = {message:'There was an error while saving the user to the database'}
-    if(isValid){
-        db.insert(newUser)
-        .then( result => res.status(201).json(result) )
-        .catch( result => res.status(500).json(errMessage) )
-    }else{
-        res.status(400).json(unCompleteMessage)
-    }  
-})
-
-
-/* 
     GET	
-    //:id	
-    Returns the user object with the specified id. 
+    /api/posts/:id	
+    Returns the post object with the specified id
 */
-router.get('//:id', (req, res) =>{
-    const notFoundMessage = { message: "The user with the specified ID does not exist" } 
-    const errMessage = {message:'The users information could not be retrieved'}
+router.get('/:id', (req, res) =>{
+    const notFoundMessage = { message: "The post with the specified ID does not exist" } 
+    const errMessage = {message:'The post information could not be retrieved'}
     db.findById(req.params.id)
     .then(result => {
         if( result != null ){
@@ -56,6 +34,36 @@ router.get('//:id', (req, res) =>{
     })
     .catch(result => res.status(500).json(errMessage))
 })
+
+/* 
+    POST	
+    /api/posts	
+    Creates a post using the information sent inside the request body and returns the newly created post object
+    
+    post schema
+  {
+    title: "The post title", // String, required
+    contents: "The post contents", // String, required
+    created_at: Mon Aug 14 2017 12:50:16 GMT-0700 (PDT) // Date, defaults to current date
+    updated_at: Mon Aug 14 2017 12:50:16 GMT-0700 (PDT) // Date, defaults to current date
+}
+
+*/
+router.post('/', ( req, res ) =>{
+    const newPost = req.body
+    const isValid = 'title' in newPost && 'contents' in newPost   //  check for expected properties available
+    const unCompleteMessage = { message: "Please provide title and contents for the post" } 
+    const errMessage = {message:'There was an error while saving the post to the database'}
+    if(isValid){
+        db.insert(newPost)
+        .then( result => res.status(201).json({...result, ...newPost}) )
+        .catch( result => res.status(500).json(errMessage) )
+    }else{
+        res.status(400).json(unCompleteMessage)
+    }  
+})
+
+
 
 /* 
     DELETE
