@@ -63,6 +63,32 @@ router.post('/', ( req, res ) =>{
     }  
 })
 
+/* 
+    PUT	
+    /api/posts/:id	
+    Updates the post with the specified id using data from the request body and returns the modified document, not the original
+*/
+router.put('/:id', (req, res) =>{
+    const notBodyMessage = { message: "Please provide title and contents for the post" } 
+    const notFoundPost = { message: "The post with the specified ID does not exist" } 
+    const errMessage = {message:'The post information could not be modified'}
+    const {title, contents} = req.body
+    const isOkBody = title != null && contents != null 
+    // console.log(`title : ${title} -- contents : ${contents} ///// isOkBody : ${isOkBody} `)
+    if(isOkBody){
+        db.update(req.params.id, req.body)
+        .then(result => {
+            if( result != null ){
+                res.status(200).json({id:parseInt(req.params.id), ...req.body})
+            }else{
+                res.status(404).json(notFoundPost)
+            }
+        })
+        .catch(result => res.status(500).json(errMessage))
+    }else{
+        res.status(400).json(notBodyMessage)
+    }
+})
 
 
 /* 
@@ -70,9 +96,9 @@ router.post('/', ( req, res ) =>{
     //:id	
     Removes the user with the specified id and returns the deleted user.
 */
-router.delete('//:id', (req, res) =>{
-    const notFoundMessage = { message: "The user with the specified ID does not exist" } 
-    const errMessage = {message:'The user could not be removed'}
+router.delete('/:id', (req, res) =>{
+    const notFoundMessage = { message: "The post with the specified ID does not exist" } 
+    const errMessage = {message:'The post could not be removed'}
     db.remove(req.params.id)
     .then(result => {
         if( result != null ){
@@ -84,32 +110,6 @@ router.delete('//:id', (req, res) =>{
     .catch(result => res.status(500).json(errMessage))
 })
 
-/* 
-    PUT
-    //:id	
-    Updates the user with the specified id using data from the request body. Returns the modified user
-*/
-router.put('//:id', (req, res) =>{
-    const notBodyMessage = { message: "Please provide name and bio for the user" } 
-    const notFoundUser = { message: "The user with the specified ID does not exist" } 
-    const errMessage = {message:'The user information could not be modified'}
-    const {name, bio} = req.body
-    const isOkBody = name != null && bio != null 
-    // console.log(`name : ${name} -- bio : ${bio} ///// isOkBody : ${isOkBody} `)
-    if(isOkBody){
-        db.update(req.params.id, req.body)
-        .then(result => {
-            if( result != null ){
-                res.status(200).json(result)
-            }else{
-                res.status(404).json(notFoundUser)
-            }
-        })
-        .catch(result => res.status(500).json(errMessage))
-    }else{
-        res.status(400).json(notBodyMessage)
-    }
-})
 
 
 module.exports = router;
