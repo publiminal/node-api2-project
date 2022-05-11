@@ -113,6 +113,25 @@ router.delete('/:id', (req, res) =>{
     .catch(result => res.status(500).json(errMessage))
 })
 
+/* 
+    GET	
+    /api/posts/:id/comments	
+    Returns an array of all the comment objects associated with the post with the specified id
+*/
+router.get('/:id/comments', (req, res) =>{
+    const notFoundMessage = { message: "The post with the specified ID does not exist" } 
+    const errMessage = {message:'The comments information could not be retrieved'}
+    db.findPostComments(req.params.id)
+    .then(result => {
+        if( result.length ){
+            res.status(200).json(result)
+        }else{
+            res.status(404).json(notFoundMessage)
+        }
+    })
+    .catch(result => res.status(500).json(errMessage))
+})
+
 
 
 module.exports = router;
