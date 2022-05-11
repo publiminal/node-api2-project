@@ -78,7 +78,7 @@ router.put('/:id', (req, res) =>{
     if(isOkBody){
         db.update(req.params.id, req.body)
         .then(result => {
-            if( result != null ){
+            if( result != null && result ){
                 res.status(200).json({id:parseInt(req.params.id), ...req.body})
             }else{
                 res.status(404).json(notFoundPost)
@@ -99,10 +99,13 @@ router.put('/:id', (req, res) =>{
 router.delete('/:id', (req, res) =>{
     const notFoundMessage = { message: "The post with the specified ID does not exist" } 
     const errMessage = {message:'The post could not be removed'}
-    db.remove(req.params.id)
+    const id = req.params.id 
+    db.findById(id)
     .then(result => {
-        if( result != null ){
-            res.status(200).json(result)
+        if(result){
+            db.remove(id)
+            .then(() => res.status(200).json(result))
+            .catch(() =>  res.status(500).json(errMessage) )
         }else{
             res.status(404).json(notFoundMessage)
         }
